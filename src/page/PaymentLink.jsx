@@ -1,11 +1,53 @@
-import React from 'react';
 import styled from 'styled-components';
 import closeIcon from '../img/close.svg';
+
 import cardIcon from '../img/creditcard.svg';
 import caretleft from '../img/caretleft.svg';
-
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function PaymentLink(props) {
+
+    const [products, setProducts] = useState([]);
+
+    useEffect(() => {
+        // URL에서 orderId 추출
+        const pathSegments = window.location.pathname.split('/');
+        const orderId = pathSegments[pathSegments.length - 1];
+        console.log('orderId',orderId)
+        // JSON 파일에서 결제 데이터 가져오기
+        axios.get('/data/PaymentData.json') // JSON 파일의 위치를 지정하세요.
+            .then(response => {
+                // 특정 상품 찾기
+                console.log('response',response)
+                const product = response.data.products.find(p => p.id === orderId);
+                setProducts(product ? [product] : []);
+            })
+            .catch(error => console.error('Error fetching products:', error));
+    }, []);
+    console.log('products',products)
+
+    const handlePayment = () => {
+        if (products.length > 0) {
+            const product = products[0];
+            window.AUTHNICE.requestPay({
+                clientId: 'S2_af4543a0be4d49a98122e01ec2059a56',
+                method: 'card',
+                orderId: product.orderId,
+                amount: product.amount,
+                goodsName: product.goodsName,
+                returnUrl: 'http://localhost:3000/serverAuth',
+                fnError: function (result) {
+                    console.log('result', result);
+                    alert('개발자확인용 : ' + result);
+                }
+            });
+        } else {
+            console.log('상품 정보가 없습니다.');
+        }
+    };
+    
+
     return (
         <PaymentContainer>
             <PaymentHeader>
@@ -13,18 +55,19 @@ function PaymentLink(props) {
                 {/* <img src={closeIcon} /> */}
             </PaymentHeader>
 
-
+            {products.map(product => (
+                <React.Fragment key={product.id}>
             <PaymentContent>
                 <PaymentContentTitle>상품</PaymentContentTitle>
         
-                    <PaymentContentText>에이블짐 노원본점</PaymentContentText>
+                    <PaymentContentText>{product.centerName}</PaymentContentText>
          
                 <PaymentFlex>
-                    <PaymentContentText>[브이 트레이너] 1:1 PT 20회</PaymentContentText>
-                    <PaymentPriceText>60,000원</PaymentPriceText>
+                    <PaymentContentText>{product.goodsName}</PaymentContentText>
+                    <PaymentPriceText>{product.amount.toLocaleString()}원</PaymentPriceText>
                 </PaymentFlex>
      
-                    <PaymentDateText>2023.06.01 ~ 2023.10.10</PaymentDateText>
+                    <PaymentDateText>{product.date}</PaymentDateText>
 
             </PaymentContent>
 
@@ -35,11 +78,11 @@ function PaymentLink(props) {
              
                 <PaymentFlex>
                     <PaymentContentText>이름</PaymentContentText>
-                    <PaymentContentText>남주혁</PaymentContentText>
+                    <PaymentContentText>{product.userName}</PaymentContentText>
                 </PaymentFlex>
                 <PaymentFlex>
                     <PaymentContentText>연락처</PaymentContentText>
-                    <PaymentContentText>010-1234-1234</PaymentContentText>
+                    <PaymentContentText>{product.userPhone}</PaymentContentText>
                 </PaymentFlex>
             </PaymentContent>
 
@@ -49,8 +92,11 @@ function PaymentLink(props) {
             {/* 총 결제 금액 */}
             <PaymentFlex>
                     <PaymentContentTitle>총 결제 금액</PaymentContentTitle>
-                    <PaymentPriceText>60,000원</PaymentPriceText>
+                    <PaymentPriceText>{product.amount.toLocaleString()}원</PaymentPriceText>
             </PaymentFlex>
+
+            </React.Fragment>
+            ))}
 
             <BorderLine />
 
@@ -80,7 +126,7 @@ function PaymentLink(props) {
 
 
             {/* 결제 버튼 */}
-            <PaymentButton>결제하기</PaymentButton>
+            <PaymentButton onClick={handlePayment}>결제하기</PaymentButton>
 
         </PaymentContainer>
     );
@@ -194,6 +240,7 @@ const CardBox = styled.div`
     width: 110px;
     height: 110px;
     border: 1px solid #eee;
+    background-color: #F6F6F6;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
