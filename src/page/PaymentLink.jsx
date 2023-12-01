@@ -10,7 +10,7 @@ function PaymentLink(props) {
         <PaymentContainer>
             <PaymentHeader>
                 <PaymentTitleText>결제하기</PaymentTitleText>
-                <img src={closeIcon} />
+                {/* <img src={closeIcon} /> */}
             </PaymentHeader>
 
 
