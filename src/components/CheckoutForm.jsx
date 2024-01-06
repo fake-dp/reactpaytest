@@ -13,8 +13,8 @@ const CheckoutForm = () => {
     script.src = 'https://pg-web.nicepay.co.kr/v3/common/js/nicepay-pgweb.js';
     script.async = true;
     document.head.appendChild(script);
-    var isTrue = true;
     // NicePay 초기화 코드 (예시)
+    
     script.onload = () => {
    
       };
@@ -27,16 +27,22 @@ const CheckoutForm = () => {
   }, []); // useEffect는 최초 렌더링 시에만 실행
 
 
+// 3초뒤에 nicepayStart(); 호출
+// setTimeout(function(){
+//     nicepayStart();
+// }, 3000);
+
+useEffect(() => {
+    setTimeout(function(){
+    nicepayStart();
+}, 3000);
+}, []); 
+
+
   function getSignData(str) {
     var encrypted = CryptoJS.SHA256(str);
     return encrypted;
 }
-
-useEffect(() => {
- 
-      nicepayStart();
-
-  }, []);
 
 
 // 모바일 결제창 진입
