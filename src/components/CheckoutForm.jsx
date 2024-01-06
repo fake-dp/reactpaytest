@@ -33,14 +33,10 @@ const CheckoutForm = () => {
 }
 
 useEffect(() => {
-    // 모바일 결제창 진입
-    if (isMobile) {
-      niceMobilepayStart();
-    } else {
-      // 데스크톱 결제창 진입
+ 
       nicepayStart();
-    }
-  }, [isMobile]);
+
+  }, []);
 
 
 // 모바일 결제창 진입
