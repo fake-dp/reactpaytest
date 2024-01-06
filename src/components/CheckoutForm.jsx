@@ -103,7 +103,7 @@ useEffect(() => {
         <input type="hidden" name="ReturnURL" value={returnURL}/>
       </form>
       <ButtonWrap>
-        <Button onClick={() => nicepayStart()}> 결제하기 </Button>
+        <Button onClick={() => nicepayStart()}> 결제하기 @!@</Button>
       </ButtonWrap>
     </Container>
   );
