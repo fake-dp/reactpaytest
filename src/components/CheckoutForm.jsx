@@ -6,9 +6,9 @@ import CryptoJS from 'crypto-js';
 
 const CheckoutForm = () => {
   const formRef = useRef();
-  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
-    setIsMobile(/Mobi|Mobile/i.test(navigator.userAgent));
+
     const script = document.createElement('script');
     script.src = 'https://pg-web.nicepay.co.kr/v3/common/js/nicepay-pgweb.js';
     script.async = true;
@@ -43,15 +43,6 @@ useEffect(() => {
     var encrypted = CryptoJS.SHA256(str);
     return encrypted;
 }
-
-
-// 모바일 결제창 진입
-function niceMobilepayStart() {
-    // NicePay 결제 시작
-    formRef.current.action = "https://web.nicepay.co.kr/v3/v3Payment.jsp";
-    formRef.current.acceptCharset = "euc-kr";
-    formRef.current.submit();
-  }
 
   
   function nicepayStart() {
@@ -111,9 +102,9 @@ function niceMobilepayStart() {
         <input type="hidden" name="PayMethod" value="CARD"/>
         <input type="hidden" name="ReturnURL" value={returnURL}/>
       </form>
-      {/* <ButtonWrap>
+      <ButtonWrap>
         <Button onClick={() => nicepayStart()}> 결제하기 </Button>
-      </ButtonWrap> */}
+      </ButtonWrap>
     </Container>
   );
 };
