@@ -31,7 +31,7 @@ function PaymentLink(props) {
         if (products.length > 0) {
             const product = products[0];
             window.AUTHNICE.requestPay({
-                clientId: 'S2_af4543a0be4d49a98122e01ec2059a56',
+                clientId: 'S1_2211b622d2b847a98faf33ff9da92569',
                 method: 'card',
                 orderId: product.orderId,
                 amount: product.amount,
