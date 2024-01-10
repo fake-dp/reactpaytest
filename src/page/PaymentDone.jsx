@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { postPaymentSubscription } from '../api/paymentApi';
+// import { postPaymentSubscription } from '../api/paymentApi';
 
 function PaymentDone(props) {
-    useEffect(() => {
-        // 결제 정보를 서버에 전달하는 작업
-        const paymentData = {
-            // 여기에 결제 정보를 채워넣으세요.
-        };
+    // useEffect(() => {
+    //     // 결제 정보를 서버에 전달하는 작업
+    //     const paymentData = {
+    //         // 여기에 결제 정보를 채워넣으세요.
+    //     };
 
-        postPaymentSubscription(paymentData)
-            .then((response) => {
-                // 결제 정보 전달 성공 시 처리
-                console.log('결제 정보 전달 성공', response);
-            })
-            .catch((error) => {
-                // 결제 정보 전달 실패 시 처리
-                console.error('결제 정보 전달 실패', error);
-            });
-    }, []);
+    //     postPaymentSubscription(paymentData)
+    //         .then((response) => {
+    //             // 결제 정보 전달 성공 시 처리
+    //             console.log('결제 정보 전달 성공', response);
+    //         })
+    //         .catch((error) => {
+    //             // 결제 정보 전달 실패 시 처리
+    //             console.error('결제 정보 전달 실패', error);
+    //         });
+    // }, []);
 
     return (
         <Container>

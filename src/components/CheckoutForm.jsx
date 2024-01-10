@@ -3,40 +3,20 @@ import styled from 'styled-components';
 import { format } from 'date-fns';
 import { convertFormToObj } from '../util/PaymentObj';
 import CryptoJS from 'crypto-js';
+import { useNavigate } from 'react-router-dom';
 
 const CheckoutForm = () => {
+
+  const navigate = useNavigate();
   const formRef = useRef();
+  const [payStatus, setPayStatus] = useState(false);
+  // const { form, setForm } = useState({}); 
 
-  useEffect(() => {
-
-    const script = document.createElement('script');
-    script.src = 'https://pg-web.nicepay.co.kr/v3/common/js/nicepay-pgweb.js';
-    script.async = true;
-    document.head.appendChild(script);
-    // NicePay 초기화 코드 (예시)
-    
-    script.onload = () => {
-   
-      };
-
-    return () => {
-      // 컴포넌트가 언마운트될 때 NicePay 정리 작업 수행
-      // 예: NicePay 라이브러리에서 제공하는 정리 함수 호출
-      // nicepayCleanup();
-    };
-  }, []); // useEffect는 최초 렌더링 시에만 실행
-
-
-// 3초뒤에 nicepayStart(); 호출
-// setTimeout(function(){
+// useEffect(() => {
+//     setTimeout(function(){
 //     nicepayStart();
-// }, 3000);
-
-useEffect(() => {
-    setTimeout(function(){
-    nicepayStart();
-}, 3000);
-}, []); 
+// }, 2000);
+// }, []); 
 
 
   function getSignData(str) {
@@ -53,32 +33,49 @@ useEffect(() => {
       console.error('NicePay library not loaded.');
     }
   }
-//   const sendPaymentResult = async () => {
-//     const body = convertFormToObj(formRef.current);
-//     body.success = success;
 
-//     if (success) {
-//       window.deleteLayer();
-//       router.push("/payment/complete")
-//     }
-//   };
-//   //[PC 결제창 전용]결제 최종 요청시 실행됩니다. <<'nicepaySubmit()' 이름 수정 불가능>>
-// function nicepaySubmit(){
-// 	document.payForm.submit();
-// }
+  function nicepaySubmit(){
+    console.log("nicepaySubmit")
+    setPayStatus(true);
+    document.payForm.submit();
+    navigate("/payment/complete")
+  }
 
-// //[PC 결제창 전용]결제창 종료 함수 <<'nicepayClose()' 이름 수정 불가능>>
-// function nicepayClose(){
-// 	alert("결제가 취소 되었습니다");
-// }
+  function nicepayClose(){
+    alert("결제를 다시 시도해주세요");
+    setPayStatus(false);
+  }
 
+  const sendPaymentResult = async () => {
+    // const body = convertFormToObj(formRef.current);
+    // body.success = success;
+    // if (success) {
+      // window.deleteLayer();
+      navigate("/payment/complete")
+    // }
+  };
+
+  useEffect(() => {
+      // PC 결제창 진입
+      if (typeof window !== "undefined") {
+        window.nicepaySubmit = nicepaySubmit;
+        window.nicepayClose = nicepayClose;
+        // window.goPay(formRef.current);
+        console.log('dnlseh윈도우',window.nicepaySubmit)
+      }
+  }, []);
+  
   const ediDate = format(new Date(), 'yyyyMMddHHmmss');
-  const amt = '1250';
+  const amt = '1200';
   const returnURL = 'http://localhost:8080/authReq';
+  // const returnURL = 'http://localhost:3000/payment/complete';
+  // const returnURL = 'http://27.96.135.229:8080/api/members/v1/tickets/payment';
   const goodsName = "나이스상품";
   const moid = 'nice_api_test_3.0';
-  const merchantKey = "EYzu8jGGMfqaDEp76gSckuvnaHHu+bC4opsSN6lHv3b2lurNYkVXrZ7Z1AoqQnXI3eLuaUFyoRNC6FkrzVjceg==";
-  const merchantID = "nicepay00m";
+  const merchantKey = "K/Yp1YrgMPr2FwvMo7Pzvr6F8zhEZpfvrYduZw1U5LXa7LzBUsnii1hnhcWaeIffKCjFjvrotzWAIyBc4+sMPw==";
+  const merchantID = "fittest01m";
+//   const merchantKey = "EYzu8jGGMfqaDEp76gSckuvnaHHu+bC4opsSN6lHv3b2lurNYkVXrZ7Z1AoqQnXI3eLuaUFyoRNC6FkrzVjceg==";
+// const merchantID = "nicepay00m";
   const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString()
 
 
@@ -89,7 +86,7 @@ useEffect(() => {
       <form
         name="payForm"
         method="post"
-        action="http://localhost:8080/authReq"
+        action={returnURL}
         ref={formRef}
         acceptCharset="euc-kr"
       >
@@ -103,7 +100,7 @@ useEffect(() => {
         <input type="hidden" name="ReturnURL" value={returnURL}/>
       </form>
       <ButtonWrap>
-        <Button onClick={() => nicepayStart()}> 결제하기 @!@</Button>
+        <Button onClick={() => nicepayStart()}> 결제하기 !@!@!</Button>
       </ButtonWrap>
     </Container>
   );

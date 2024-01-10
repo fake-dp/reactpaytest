@@ -3,50 +3,93 @@ import closeIcon from '../img/close.svg';
 
 import cardIcon from '../img/creditcard.svg';
 import caretleft from '../img/caretleft.svg';
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState,useRef } from 'react';
+import {getPaymentUserInfo} from '../api/paymentApi';
+import { useLocation } from 'react-router-dom';
+import {formatPhoneNumber,formatDate} from '../util/CustomFn';
+
+import { format } from 'date-fns';
+import { convertFormToObj } from '../util/PaymentObj';
+import CryptoJS from 'crypto-js';
+import { useNavigate } from 'react-router-dom';
 
 function PaymentLink(props) {
+    const navigate = useNavigate();
+    const formRef = useRef();
+    const location = useLocation();
+    const id = location.pathname.split('/').pop();
+    const [paymentData, setPaymentData] = useState([]);
 
-    const [products, setProducts] = useState([]);
+    console.log(id); // 아이디 출력
+
+    const getUserPayInfoData = async () => {
+        try{
+            const response = await getPaymentUserInfo(id);
+            // console.log(response);
+            setPaymentData(response);
+        } catch (e) {
+            // console.log(e);
+            alert('결제 정보를 불러오는데 실패했습니다.');
+        }
+    }
 
     useEffect(() => {
-        // URL에서 orderId 추출
-        const pathSegments = window.location.pathname.split('/');
-        const orderId = pathSegments[pathSegments.length - 1];
-        console.log('orderId',orderId)
-        // JSON 파일에서 결제 데이터 가져오기
-        axios.get('/data/PaymentData.json') // JSON 파일의 위치를 지정하세요.
-            .then(response => {
-                // 특정 상품 찾기
-                console.log('response',response)
-                const product = response.data.products.find(p => p.id === orderId);
-                setProducts(product ? [product] : []);
-            })
-            .catch(error => console.error('Error fetching products:', error));
-    }, []);
-    console.log('products',products)
+        getUserPayInfoData();
+    }
+    , []);
 
-    const handlePayment = () => {
-        if (products.length > 0) {
-            const product = products[0];
-            window.AUTHNICE.requestPay({
-                clientId: 'S1_2211b622d2b847a98faf33ff9da92569',
-                method: 'card',
-                orderId: product.orderId,
-                amount: product.amount,
-                goodsName: product.goodsName,
-                returnUrl: 'http://localhost:3000/serverAuth',
-                fnError: function (result) {
-                    console.log('result', result);
-                    alert('개발자확인용 : ' + result);
-                }
-            });
-        } else {
-            console.log('상품 정보가 없습니다.');
-        }
-    };
+
+
+
+    function getSignData(str) {
+        var encrypted = CryptoJS.SHA256(str);
+        return encrypted;
+    }
     
+      
+      function nicepayStart() {
+        // NicePay 결제 시작
+        if (window.goPay) {
+          window.goPay(document.payForm);
+        } else {
+          console.error('NicePay library not loaded.');
+        }
+      }
+    
+      function nicepaySubmit(){
+        console.log("nicepaySubmit")
+        document.payForm.submit();
+        navigate("/payment/complete")
+      }
+    
+      function nicepayClose(){
+        alert("결제를 다시 시도해주세요");
+      }
+
+
+  useEffect(() => {
+    // PC 결제창 진입
+    if (typeof window !== "undefined") {
+      window.nicepaySubmit = nicepaySubmit;
+      window.nicepayClose = nicepayClose;
+      console.log('dnlseh윈도우',window.nicepaySubmit)
+    }
+}, []);
+
+
+const ediDate = format(new Date(), 'yyyyMMddHHmmss');
+const amt = '1200';
+const returnURL = 'http://localhost:8080/authReq';
+// const returnURL = 'http://localhost:3000/payment/complete';
+// const returnURL = 'http://27.96.135.229:8080/api/members/v1/tickets/payment';
+const goodsName = "나이스상품";
+const moid = 'nice_api_test_3.0';
+const merchantKey = "K/Yp1YrgMPr2FwvMo7Pzvr6F8zhEZpfvrYduZw1U5LXa7LzBUsnii1hnhcWaeIffKCjFjvrotzWAIyBc4+sMPw==";
+const merchantID = "fittest01m";
+//   const merchantKey = "EYzu8jGGMfqaDEp76gSckuvnaHHu+bC4opsSN6lHv3b2lurNYkVXrZ7Z1AoqQnXI3eLuaUFyoRNC6FkrzVjceg==";
+// const merchantID = "nicepay00m";
+const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString()
+
 
     return (
         <PaymentContainer>
@@ -54,21 +97,28 @@ function PaymentLink(props) {
                 <PaymentTitleText>결제하기</PaymentTitleText>
                 {/* <img src={closeIcon} /> */}
             </PaymentHeader>
-
-            {products.map(product => (
-                <React.Fragment key={product.id}>
+                {
+                    paymentData&& paymentData && (
+         
+                <React.Fragment >
             <PaymentContent>
                 <PaymentContentTitle>상품</PaymentContentTitle>
         
-                    <PaymentContentText>{product.centerName}</PaymentContentText>
-         
-                <PaymentFlex>
-                    <PaymentContentText>{product.goodsName}</PaymentContentText>
-                    <PaymentPriceText>{product.amount.toLocaleString()}원</PaymentPriceText>
-                </PaymentFlex>
-     
-                    <PaymentDateText>{product.date}</PaymentDateText>
-
+                    <PaymentContentText>{paymentData.goodsName}</PaymentContentText>
+                        {
+                            paymentData?.tickets?.map((item, index) => {
+                                return (
+                                    <>
+                                    <PaymentFlex key={index}>
+                                        <PaymentContentText>{item.centerName}</PaymentContentText>
+                                        <PaymentPriceText>{item.price.toLocaleString()}원</PaymentPriceText>
+                                    </PaymentFlex>
+                                      <PaymentDateText>{formatDate(item.startDate)}~{formatDate(item.endDate)}</PaymentDateText>
+                                    </>
+                                )
+                               }
+                            )
+                        }
             </PaymentContent>
 
             <BorderLine />
@@ -78,12 +128,13 @@ function PaymentLink(props) {
              
                 <PaymentFlex>
                     <PaymentContentText>이름</PaymentContentText>
-                    <PaymentContentText>{product.userName}</PaymentContentText>
+                    <PaymentContentText>{paymentData.member?.name}</PaymentContentText>
                 </PaymentFlex>
                 <PaymentFlex>
                     <PaymentContentText>연락처</PaymentContentText>
-                    <PaymentContentText>{product.userPhone}</PaymentContentText>
+                    <PaymentContentText>{formatPhoneNumber(paymentData.member?.phone)}</PaymentContentText>
                 </PaymentFlex>
+           
             </PaymentContent>
 
             <BorderLine />
@@ -92,11 +143,15 @@ function PaymentLink(props) {
             {/* 총 결제 금액 */}
             <PaymentFlex>
                     <PaymentContentTitle>총 결제 금액</PaymentContentTitle>
-                    <PaymentPriceText>{product.amount.toLocaleString()}원</PaymentPriceText>
+                    <PaymentPriceText>
+                    {paymentData?.tickets?.reduce((total, ticket) => total + ticket.price, 0).toLocaleString()}원
+                    </PaymentPriceText>
             </PaymentFlex>
 
             </React.Fragment>
-            ))}
+  
+            )}
+                
 
             <BorderLine />
 
@@ -126,7 +181,26 @@ function PaymentLink(props) {
 
 
             {/* 결제 버튼 */}
-            <PaymentButton onClick={handlePayment}>결제하기</PaymentButton>
+            <PaymentButton onClick={() => nicepayStart()}>결제하기</PaymentButton>
+
+
+        {/* 결제 정보 하이드 */}
+        <form
+        name="payForm"
+        method="post"
+        action={returnURL}
+        ref={formRef}
+        acceptCharset="euc-kr"
+      >
+        <input type="hidden" name="GoodsName" value={goodsName}/>
+        <input type="hidden" name="Amt" value={amt}/>
+        <input type="hidden" name="MID" value={merchantID}/>
+        <input type="hidden" name="EdiDate" value={ediDate}/>
+        <input type="hidden" name="Moid" value={moid}/>
+        <input type="hidden" name="SignData" value={signData}/>
+        <input type="hidden" name="PayMethod" value="CARD"/>
+        <input type="hidden" name="ReturnURL" value={returnURL}/>
+      </form>
 
         </PaymentContainer>
     );

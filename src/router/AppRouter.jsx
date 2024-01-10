@@ -8,9 +8,9 @@ import DtoPayment from '../page/DtoPayment';
 function AppRouter(props) {
     return (
     <Routes>
-      {/* <Route path="/payment" element={<Payment />}/>
-      <Route path='/paytest/:id' element={<PaymentLink />} />
-      <Route path='/paymentTest' element={<TestPayment />} /> */}
+      {/* <Route path="/payment" element={<Payment />}/> */}
+      <Route path='/paymentlink/:id' element={<PaymentLink />} />
+      <Route path='/paymentTest' element={<TestPayment />} />
       <Route path='/payment/complete' element={<PaymentDone />} />
       <Route path='/payment' element={<DtoPayment/>} />
     </Routes>
