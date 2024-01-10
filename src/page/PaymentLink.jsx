@@ -29,7 +29,7 @@ function PaymentLink(props) {
             setPaymentData(response);
         } catch (e) {
             // console.log(e);
-            alert('결제 정보를 불러오는데 실패했습니다.');
+            alert(e);
         }
     }
 
