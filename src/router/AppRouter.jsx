@@ -5,6 +5,7 @@ import PaymentDone from '../page/PaymentDone';
 import PaymentLink from '../page/PaymentLink';
 import TestPayment from '../page/TestPayment';
 import DtoPayment from '../page/DtoPayment';
+import CheckoutForm from '../components/CheckoutForm';
 function AppRouter(props) {
     return (
     <Routes>
@@ -12,7 +13,8 @@ function AppRouter(props) {
       <Route path='/paymentlink/:id' element={<PaymentLink />} />
       <Route path='/paymentTest' element={<TestPayment />} />
       <Route path='/payment/complete' element={<PaymentDone />} />
-      <Route path='/payment' element={<DtoPayment/>} />
+      {/* <Route path='/payment' element={<DtoPayment/>} /> */}
+      <Route path='/payment' element={<CheckoutForm/>} />
     </Routes>
     );
 }

@@ -20,12 +20,13 @@ function PaymentLink(props) {
     const id = location.pathname.split('/').pop();
     const [paymentData, setPaymentData] = useState([]);
 
-    console.log(id); // 아이디 출력
+    const [testData, setTestData] = useState([])
+
 
     const getUserPayInfoData = async () => {
         try{
             const response = await getPaymentUserInfo(id);
-            // console.log(response);
+            console.log(response);
             setPaymentData(response);
         } catch (e) {
             // console.log(e);
@@ -40,7 +41,6 @@ function PaymentLink(props) {
 
 
 
-
     function getSignData(str) {
         var encrypted = CryptoJS.SHA256(str);
         return encrypted;
@@ -51,16 +51,21 @@ function PaymentLink(props) {
         // NicePay 결제 시작
         if (window.goPay) {
           window.goPay(document.payForm);
+          console.log('document.payForm',document.payForm)
         } else {
           console.error('NicePay library not loaded.');
         }
       }
     
-      function nicepaySubmit(){
-        console.log("nicepaySubmit")
-        document.payForm.submit();
-        navigate("/payment/complete")
+      function nicepaySubmit(result){
+        console.log('결과값',result)
+          document.payForm.submit();
+          // navigate("/payment/complete")
+      
+          alert("nicepaySubmit",result)
       }
+
+
     
       function nicepayClose(){
         alert("결제를 다시 시도해주세요");
@@ -72,20 +77,23 @@ function PaymentLink(props) {
     if (typeof window !== "undefined") {
       window.nicepaySubmit = nicepaySubmit;
       window.nicepayClose = nicepayClose;
-      console.log('dnlseh윈도우',window.nicepaySubmit)
+    //   console.log('dnlseh윈도우',window.nicepaySubmit)
     }
 }, []);
 
-
-const ediDate = format(new Date(), 'yyyyMMddHHmmss');
-const amt = '1200';
-const returnURL = 'http://localhost:8080/authReq';
-// const returnURL = 'http://localhost:3000/payment/complete';
-// const returnURL = 'http://27.96.135.229:8080/api/members/v1/tickets/payment';
-const goodsName = "나이스상품";
-const moid = 'nice_api_test_3.0';
 const merchantKey = "K/Yp1YrgMPr2FwvMo7Pzvr6F8zhEZpfvrYduZw1U5LXa7LzBUsnii1hnhcWaeIffKCjFjvrotzWAIyBc4+sMPw==";
 const merchantID = "fittest01m";
+const ediDate = format(new Date(), 'yyyyMMddHHmmss');
+
+const amt = paymentData?.tickets?.reduce((total, ticket) => total + ticket.price, 0);
+// const returnURL = 'http://localhost:8080/test';
+// const returnURL = 'http://localhost:8080/authReq';
+const returnURL = 'https://webapi.nicepay.co.kr/webapi/nicepay3.0_utf-8/payResult_utf.jsp';
+// const returnURL = 'http://localhost:3000/payment/complete'; 
+    
+const goodsName = paymentData?.goodsName; 
+const moid = 'nice_api_test_3.0';
+
 //   const merchantKey = "EYzu8jGGMfqaDEp76gSckuvnaHHu+bC4opsSN6lHv3b2lurNYkVXrZ7Z1AoqQnXI3eLuaUFyoRNC6FkrzVjceg==";
 // const merchantID = "nicepay00m";
 const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString()
@@ -189,9 +197,9 @@ const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString(
         name="payForm"
         method="post"
         action={returnURL}
+        onSubmit={e => e.preventDefault()}
         ref={formRef}
-        acceptCharset="euc-kr"
-      >
+        acceptCharset="euc-kr">
         <input type="hidden" name="GoodsName" value={goodsName}/>
         <input type="hidden" name="Amt" value={amt}/>
         <input type="hidden" name="MID" value={merchantID}/>

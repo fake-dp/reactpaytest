@@ -9,24 +9,19 @@ const CheckoutForm = () => {
 
   const navigate = useNavigate();
   const formRef = useRef();
-  const [payStatus, setPayStatus] = useState(false);
-  // const { form, setForm } = useState({}); 
-
-// useEffect(() => {
-//     setTimeout(function(){
-//     nicepayStart();
-// }, 2000);
-// }, []); 
 
 
+
+  // 위변조 방지를 위한 signData 생성
   function getSignData(str) {
     var encrypted = CryptoJS.SHA256(str);
     return encrypted;
 }
 
-  
+  // 결제창 진입
   function nicepayStart() {
-    // NicePay 결제 시작
+
+    // 모바일 경우 분기 처리 필요
     if (window.goPay) {
       window.goPay(document.payForm);
     } else {
@@ -36,51 +31,41 @@ const CheckoutForm = () => {
 
   function nicepaySubmit(){
     console.log("nicepaySubmit")
-    setPayStatus(true);
     document.payForm.submit();
-    navigate("/payment/complete")
+    // navigate("/payment/complete")
   }
 
   function nicepayClose(){
     alert("결제를 다시 시도해주세요");
-    setPayStatus(false);
+
   }
 
-  const sendPaymentResult = async () => {
-    // const body = convertFormToObj(formRef.current);
-    // body.success = success;
-    // if (success) {
-      // window.deleteLayer();
-      navigate("/payment/complete")
-    // }
-  };
 
+  // nicepaySubmit & nicepayClose 콜백 함수를 window 객체에 등록
   useEffect(() => {
+// 모바일 분기처리 필요
+
       // PC 결제창 진입
       if (typeof window !== "undefined") {
         window.nicepaySubmit = nicepaySubmit;
         window.nicepayClose = nicepayClose;
         // window.goPay(formRef.current);
-        console.log('dnlseh윈도우',window.nicepaySubmit)
       }
   }, []);
   
+
+  // 테스트를 위해 임시로 작성 (필수값만 우선)
   const ediDate = format(new Date(), 'yyyyMMddHHmmss');
-  const amt = '1200';
-  const returnURL = 'http://localhost:8080/authReq';
-  // const returnURL = 'http://localhost:3000/payment/complete';
-  // const returnURL = 'http://27.96.135.229:8080/api/members/v1/tickets/payment';
+  const amt = '1004';
+  const returnURL = 'http://localhost:8080/authReq'; // node샘플 코드 서버주소
   const goodsName = "나이스상품";
   const moid = 'nice_api_test_3.0';
   const merchantKey = "K/Yp1YrgMPr2FwvMo7Pzvr6F8zhEZpfvrYduZw1U5LXa7LzBUsnii1hnhcWaeIffKCjFjvrotzWAIyBc4+sMPw==";
   const merchantID = "fittest01m";
-//   const merchantKey = "EYzu8jGGMfqaDEp76gSckuvnaHHu+bC4opsSN6lHv3b2lurNYkVXrZ7Z1AoqQnXI3eLuaUFyoRNC6FkrzVjceg==";
-// const merchantID = "nicepay00m";
   const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString()
 
 
-
-
+  // form tag안에 들어갈 데이터
   return (
     <Container>
       <form
@@ -100,7 +85,7 @@ const CheckoutForm = () => {
         <input type="hidden" name="ReturnURL" value={returnURL}/>
       </form>
       <ButtonWrap>
-        <Button onClick={() => nicepayStart()}> 결제하기 !@!@!</Button>
+        <Button onClick={() => nicepayStart()}>결제하기 test</Button>
       </ButtonWrap>
     </Container>
   );
