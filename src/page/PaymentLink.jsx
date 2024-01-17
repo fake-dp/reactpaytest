@@ -1,44 +1,105 @@
 import styled from 'styled-components';
-import closeIcon from '../img/close.svg';
+// import closeIcon from '../img/close.svg';
 
 import cardIcon from '../img/creditcard.svg';
 import caretleft from '../img/caretleft.svg';
 import React, { useEffect, useState,useRef } from 'react';
-import {getPaymentUserInfo} from '../api/paymentApi';
+import {getPaymentUserInfo,postPaymentLink} from '../api/paymentApi';
 import { useLocation } from 'react-router-dom';
 import {formatPhoneNumber,formatDate} from '../util/CustomFn';
-
 import { format } from 'date-fns';
-import { convertFormToObj } from '../util/PaymentObj';
 import CryptoJS from 'crypto-js';
 import { useNavigate } from 'react-router-dom';
 
 function PaymentLink(props) {
+
     const navigate = useNavigate();
     const formRef = useRef();
     const location = useLocation();
     const id = location.pathname.split('/').pop();
     const [paymentData, setPaymentData] = useState([]);
 
-    const [testData, setTestData] = useState([])
+// 나중에 환경 변수 하기 
+const merchantKey = "K/Yp1YrgMPr2FwvMo7Pzvr6F8zhEZpfvrYduZw1U5LXa7LzBUsnii1hnhcWaeIffKCjFjvrotzWAIyBc4+sMPw==";
+const merchantID = "fittest01m";
 
+const ediDate = format(new Date(), 'yyyyMMddHHmmss');
+// const amt = paymentData?.tickets?.reduce((total, ticket) => total + ticket.price, 0)||0;
+const amt = 2000;
 
-    const getUserPayInfoData = async () => {
-        try{
-            const response = await getPaymentUserInfo(id);
-            console.log(response);
-            setPaymentData(response);
-        } catch (e) {
-            // console.log(e);
-            alert(e);
-        }
-    }
+// 이부분 뭘까
+// const returnURL = isMobile ? 'https://web.nicepay.co.kr/v3/v3Payment.jsp':'/payment/complete';
+const returnURL = 'http://localhost:8080/authReq';
+const goodsName = paymentData?.goodsName; 
+const moid = 'nice_api_test_3.0';
+const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString()
+
+    
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+const [formData, setFormData] = useState({
+    merchantKey,
+    merchantID,
+    ediDate,
+    goodsName,
+    amt,
+    moid,
+    signData,
+  });
+
 
     useEffect(() => {
+        detectDeviceAndAssignMethods(isMobile);
         getUserPayInfoData();
     }
     , []);
 
+        // 디바이스를 감지하고, 적절한 결제창 함수들을 window 객체에 할당하는 함수
+        function detectDeviceAndAssignMethods(isMobile) {
+            
+            if (isMobile) {
+                // 모바일 환경의 경우
+                formRef.current.action = "https://web.nicepay.co.kr/v3/v3Payment.jsp";
+                formRef.current.acceptCharset = "euc-kr";
+                formRef.current.submit();
+            } else {
+                // PC 환경의 경우
+                window.nicepaySubmit = nicepaySubmit;
+                window.nicepayClose = nicepayClose;
+                // window.goPay(formRef.current);
+            }
+        }
+
+// 사용자 결제 정보를 가져오는 함수입니다.
+    const getUserPayInfoData = async () => {
+        try {
+            const response = await getPaymentUserInfo(id);
+            setPaymentData(response); // 결제 데이터 상태 업데이트
+        } catch (e) {
+            alert(`결제 정보를 가져오는 중 오류가 발생했습니다: ${e.message}`);
+            console.error('결제 정보 가져오기 실패:', e);
+        }
+    };
+
+    const handlePostPaymentLink = async (data) => {
+        const failureMessage = '결제가 실패되었습니다.';
+        try {
+            const response = await postPaymentLink(data);
+            if (response) {
+                alert('결제가 완료되었습니다.');
+                console.log('결제 성공:', response);
+
+            } else {
+                alert(failureMessage);
+                console.error('결제 실패:', response);
+
+            }
+        } catch (error) {
+            alert(failureMessage);
+            console.error('결제 처리 중 오류 발생:', error);
+
+        }
+    };
 
 
     function getSignData(str) {
@@ -51,52 +112,35 @@ function PaymentLink(props) {
         // NicePay 결제 시작
         if (window.goPay) {
           window.goPay(document.payForm);
-          console.log('document.payForm',document.payForm)
+        //   console.log('document.payForm',document.payForm)
         } else {
-          console.error('NicePay library not loaded.');
+          console.error('나이스페이 에러.');
         }
       }
-    
-      function nicepaySubmit(result){
-        console.log('결과값',result)
-          document.payForm.submit();
-          // navigate("/payment/complete")
-      
-          alert("nicepaySubmit",result)
-      }
 
-
-    
       function nicepayClose(){
         alert("결제를 다시 시도해주세요");
-      }
-
-
-  useEffect(() => {
-    // PC 결제창 진입
-    if (typeof window !== "undefined") {
-      window.nicepaySubmit = nicepaySubmit;
-      window.nicepayClose = nicepayClose;
-    //   console.log('dnlseh윈도우',window.nicepaySubmit)
     }
-}, []);
 
-const merchantKey = "K/Yp1YrgMPr2FwvMo7Pzvr6F8zhEZpfvrYduZw1U5LXa7LzBUsnii1hnhcWaeIffKCjFjvrotzWAIyBc4+sMPw==";
-const merchantID = "fittest01m";
-const ediDate = format(new Date(), 'yyyyMMddHHmmss');
-
-const amt = paymentData?.tickets?.reduce((total, ticket) => total + ticket.price, 0);
-// const returnURL = 'http://localhost:8080/test';
-// const returnURL = 'http://localhost:8080/authReq';
-const returnURL = 'https://webapi.nicepay.co.kr/webapi/nicepay3.0_utf-8/payResult_utf.jsp';
-// const returnURL = 'http://localhost:3000/payment/complete'; 
     
-const goodsName = paymentData?.goodsName; 
-const moid = 'nice_api_test_3.0';
-
-//   const merchantKey = "EYzu8jGGMfqaDEp76gSckuvnaHHu+bC4opsSN6lHv3b2lurNYkVXrZ7Z1AoqQnXI3eLuaUFyoRNC6FkrzVjceg==";
-// const merchantID = "nicepay00m";
-const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString()
+      function nicepaySubmit(){
+        // console.log('결과값',document.payForm)
+        document.payForm.submit();
+        if(document.payForm.AuthResultCode.value == '0000'){
+            const linkData = {
+                id: id,
+                authInfo:{
+                    authToken: document.payForm.AuthToken.value,
+                    amount: document.payForm.Amt.value,
+                    tid: document.payForm.TxTid.value,
+                }
+            }
+            handlePostPaymentLink(linkData);
+        }else{
+            console.log('결제실패')
+            alert("결제를 다시 시도해주세요");
+        }
+}
 
 
     return (
@@ -112,17 +156,17 @@ const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString(
             <PaymentContent>
                 <PaymentContentTitle>상품</PaymentContentTitle>
         
-                    <PaymentContentText>{paymentData.goodsName}</PaymentContentText>
+                    <PaymentContentText>{paymentData.goodsName} {paymentData?.tickets?.length >= 2 && `(${paymentData?.tickets?.length})`}</PaymentContentText>
                         {
                             paymentData?.tickets?.map((item, index) => {
                                 return (
-                                    <>
-                                    <PaymentFlex key={index}>
+                                    <React.Fragment key={index}>
+                                    <PaymentFlex>
                                         <PaymentContentText>{item.centerName}</PaymentContentText>
                                         <PaymentPriceText>{item.price.toLocaleString()}원</PaymentPriceText>
                                     </PaymentFlex>
                                       <PaymentDateText>{formatDate(item.startDate)}~{formatDate(item.endDate)}</PaymentDateText>
-                                    </>
+                                    </React.Fragment>
                                 )
                                }
                             )
@@ -197,25 +241,26 @@ const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString(
         name="payForm"
         method="post"
         action={returnURL}
-        onSubmit={e => e.preventDefault()}
         ref={formRef}
         acceptCharset="euc-kr">
-        <input type="hidden" name="GoodsName" value={goodsName}/>
-        <input type="hidden" name="Amt" value={amt}/>
-        <input type="hidden" name="MID" value={merchantID}/>
-        <input type="hidden" name="EdiDate" value={ediDate}/>
-        <input type="hidden" name="Moid" value={moid}/>
-        <input type="hidden" name="SignData" value={signData}/>
-        <input type="hidden" name="PayMethod" value="CARD"/>
-        <input type="hidden" name="ReturnURL" value={returnURL}/>
+        <input type="" name="GoodsName" value={formData.goodsName}/>
+        <input type="" name="Amt" value={formData.amt}/>
+        <input type="" name="MID" value={formData.merchantID}/>
+        <input type="" name="EdiDate" value={formData.ediDate}/>
+        <input type="" name="Moid" value={formData.moid}/>
+        <input type="" name="SignData" value={formData.signData}/>
+        <input type="" name="PayMethod" value="CARD"/>
+        <input type="" name="ReturnURL" value={formData.returnURL}/>
       </form>
-
         </PaymentContainer>
     );
 }
 
 export default PaymentLink;
 
+
+const PaymentForm = styled.form`
+`
 
 const PaymentContainer = styled.div`
     width: 100%;
@@ -268,14 +313,6 @@ const PaymentFlex = styled.div`
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    box-sizing: border-box;
-`
-
-const PaymentSubFlex = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 50%;
     box-sizing: border-box;
 `
 

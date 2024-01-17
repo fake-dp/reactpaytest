@@ -17,3 +17,13 @@ export const getPaymentUserInfo = async (id) => {
         throw error;
     }
 }
+
+//결제링크 결제 api
+export const postPaymentLink = async (data) => {
+    try {
+        const response = await axios.post(`http://27.96.135.229:8080/api/members/v1/paymentLink`, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
