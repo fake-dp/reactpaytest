@@ -18,7 +18,7 @@ function PaymentLink(props) {
     const location = useLocation();
     const id = location.pathname.split('/').pop();
     const [paymentData, setPaymentData] = useState([]);
-
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 // 나중에 환경 변수 하기 
 const merchantKey = "K/Yp1YrgMPr2FwvMo7Pzvr6F8zhEZpfvrYduZw1U5LXa7LzBUsnii1hnhcWaeIffKCjFjvrotzWAIyBc4+sMPw==";
 const merchantID = "fittest01m";
@@ -28,14 +28,14 @@ const ediDate = format(new Date(), 'yyyyMMddHHmmss');
 const amt = 2000;
 
 // 이부분 뭘까
-// const returnURL = isMobile ? 'https://web.nicepay.co.kr/v3/v3Payment.jsp':'/payment/complete';
-const returnURL = 'http://localhost:8080/authReq';
+const returnURL = isMobile ? 'https://web.nicepay.co.kr/v3/v3Payment.jsp':'/payment/complete';
+// const returnURL = 'http://localhost:8080/test';
 const goodsName = paymentData?.goodsName; 
 const moid = 'nice_api_test_3.0';
 const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString()
 
     
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 
 const [formData, setFormData] = useState({
     merchantKey,
@@ -61,7 +61,7 @@ const [formData, setFormData] = useState({
                 // 모바일 환경의 경우
                 formRef.current.action = "https://web.nicepay.co.kr/v3/v3Payment.jsp";
                 formRef.current.acceptCharset = "euc-kr";
-                formRef.current.submit();
+                // formRef.current.submit();
             } else {
                 // PC 환경의 경우
                 window.nicepaySubmit = nicepaySubmit;
@@ -243,14 +243,14 @@ const [formData, setFormData] = useState({
         action={returnURL}
         ref={formRef}
         acceptCharset="euc-kr">
-        <input type="" name="GoodsName" value={formData.goodsName}/>
-        <input type="" name="Amt" value={formData.amt}/>
-        <input type="" name="MID" value={formData.merchantID}/>
-        <input type="" name="EdiDate" value={formData.ediDate}/>
-        <input type="" name="Moid" value={formData.moid}/>
-        <input type="" name="SignData" value={formData.signData}/>
+        <input type="" name="GoodsName" value={goodsName}/>
+        <input type="" name="Amt" value={amt}/>
+        <input type="" name="MID" value={merchantID}/>
+        <input type="" name="EdiDate" value={ediDate}/>
+        <input type="" name="Moid" value={moid}/>
+        <input type="" name="SignData" value={signData}/>
         <input type="" name="PayMethod" value="CARD"/>
-        <input type="" name="ReturnURL" value={formData.returnURL}/>
+        <input type="" name="ReturnURL" value={returnURL}/>
       </form>
         </PaymentContainer>
     );

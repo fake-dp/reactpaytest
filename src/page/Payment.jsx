@@ -26,13 +26,27 @@ const Payment = () => {
 
   const formRef = useRef(null);
 
-  const handlePaymentRequest = async () => {
-    window.goPay(formRef.current);
-};
+//   const handlePaymentRequest = async () => {
+//     window.goPay(formRef.current);
+// };
 
   useEffect(() => {
-    detectDeviceAndAssignMethods(isMobile);
+    // detectDeviceAndAssignMethods(isMobile);
+    requestPermission();
   }, []);
+
+
+  const requestPermission = () => {
+    if (window.ReactNativeWebView) {
+      // 모바일이라면 모바일의 카메라 권한을 물어보는 액션을 전달합니다.
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({ type: "REQ_CAMERA_PERMISSION" })
+      );
+    } else {
+      // 모바일이 아니라면 모바일 아님을 alert로 띄웁니다.
+      alert({ message: ERROR_TYPES.notMobile });
+    }
+  };
 
   function detectDeviceAndAssignMethods(isMobile) {
     if (isMobile) {
@@ -86,7 +100,7 @@ const Payment = () => {
         <input type="hidden" name="ReturnURL" value={formData.returnURL}/>
       </form>
 
-      <button onClick={handlePaymentRequest}>REQUEST</button>
+      {/* <button onClick={handlePaymentRequest}>REQUEST</button> */}
     </div>
   );
 };
