@@ -29,9 +29,9 @@ function TestData(props) {
 
             <div>
                 <p>{data}</p>
-                <p>paymentInfoData: {data.paymentInfoData}</p>
-                <p>totalPrice: {data.totalPrice}</p>
-                <p>goodsName: {data.goodsName}</p>
+                {/* <p>paymentInfoData: {data.paymentInfoData}</p> */}
+                {/* <p>totalPrice: {data.totalPrice}</p> */}
+                {/* <p>goodsName: {data.goodsName}</p> */}
             </div>
 
     </div>
