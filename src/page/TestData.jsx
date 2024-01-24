@@ -25,14 +25,15 @@ function TestData(props) {
 
     return (
         <div>
-        웹뷰 데이터 받아오기 test
-        {data && (
+        웹뷰 데이터 받아오기 test!!!!
+
             <div>
+                <p>{data}</p>
                 <p>paymentInfoData: {data.paymentInfoData}</p>
                 <p>totalPrice: {data.totalPrice}</p>
                 <p>goodsName: {data.goodsName}</p>
             </div>
-        )}
+
     </div>
     );
 }
