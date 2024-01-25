@@ -72,19 +72,6 @@ function TestData(props) {
     return (
         <>
         <div>
-                <h1>웹뷰 데이터 받아오기 @@#!</h1>
-        </div>
-        <div>
-            
-             
-                    <>
-                        <p>test: {test}</p>
-                        <p>
-                            <span>goodsName: {goodsName}</span>
-                            <span>totalPrice: {totalPrice}</span>
-                        </p>
-                    </>
-                
         <form
         name="payForm"
         method="post"

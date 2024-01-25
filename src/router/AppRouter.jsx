@@ -9,8 +9,8 @@ function AppRouter(props) {
     <Routes>
       <Route path='/paymentlink/:id' element={<PaymentLink />} />
       <Route path='/payment/complete' element={<PaymentDone />} />
-      {/* <Route path='/payment' element={<Payment />} /> */}
-      <Route path='/payment' element={<TestData />} />
+      <Route path='/payment' element={<Payment />} />
+      {/* <Route path='/payment' element={<TestData />} /> */}
     </Routes>
     );
 }
