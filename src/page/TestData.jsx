@@ -7,7 +7,7 @@ function TestData(props) {
         const handleEvent = (event) => {
             try {
                 // 여기서 event.data에는 React Native에서 보낸 데이터가 포함되어 있습니다.
-                const data = JSON.parse(event.data);
+                const data = event.data;
   
                 setTest(data);
             } catch(error) {
