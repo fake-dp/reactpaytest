@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 
 const Payment = () => {
  
-  const [test, setTest] = useState(null);
+  const [paymentData, setPaymentData] = useState(null);
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
@@ -17,7 +17,7 @@ const Payment = () => {
   const ediDate = format(new Date(), 'yyyyMMddHHmmss');
   const amt = totalPrice;
   // feturnurl을 어떻게 활용해야하는지 모르겠음
-  const returnURL = '/payment/complete';
+  const returnURL = 'https://www.noteggdev.co.kr/payResult_utf.jsp';
   const goodsName = goodsNameParams;
   const moid = 'nice_api_test_3.0';
   const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString();
@@ -29,7 +29,7 @@ const Payment = () => {
       const handleEvent = (event) => {
           try {
               const data = event.data;
-              setTest(data);
+              setPaymentData(data);
           } catch(error) {
               console.log('Received data is not valid JSON: ', event.data);
           }

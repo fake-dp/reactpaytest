@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-
+import { useLocation } from 'react-router-dom';
 function PaymentDone() {
+
+    const queryParams = new URLSearchParams(location.search);
+    const location = useLocation();
     useEffect(() => {
         // 결제 결과 데이터 추출 (이 예시에서는 단순화를 위해 하드코딩)
         const paymentResult = {
@@ -23,6 +26,7 @@ function PaymentDone() {
         if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
             window.ReactNativeWebView.postMessage(JSON.stringify(paymentResult));
         }
+        console.log('paymentResult',paymentResult);
     }, []);
 
     return (

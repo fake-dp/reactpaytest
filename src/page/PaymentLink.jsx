@@ -24,11 +24,11 @@ const merchantKey = "K/Yp1YrgMPr2FwvMo7Pzvr6F8zhEZpfvrYduZw1U5LXa7LzBUsnii1hnhcW
 const merchantID = "fittest01m";
 
 const ediDate = format(new Date(), 'yyyyMMddHHmmss');
-// const amt = paymentData?.tickets?.reduce((total, ticket) => total + ticket.price, 0)||0;
-const amt = 2000;
+const amt = paymentData?.tickets?.reduce((total, ticket) => total + ticket.price, 0)||0;
+// const amt = 2000;
 
 // 이부분 뭘까
-const returnURL = isMobile ? 'https://web.nicepay.co.kr/v3/v3Payment.jsp':'/payment/complete';
+const returnURL = isMobile ? 'https://webapi.nicepay.co.kr/webapi/pay_process.jsp':'http://localhost:3000/payment/complete';
 // const returnURL = 'http://localhost:8080/test';
 const goodsName = paymentData?.goodsName; 
 const moid = 'nice_api_test_3.0';
@@ -36,16 +36,6 @@ const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString(
 
     
 
-
-const [formData, setFormData] = useState({
-    merchantKey,
-    merchantID,
-    ediDate,
-    goodsName,
-    amt,
-    moid,
-    signData,
-  });
 
 
     useEffect(() => {
@@ -135,7 +125,7 @@ const [formData, setFormData] = useState({
                     tid: document.payForm.TxTid.value,
                 }
             }
-            handlePostPaymentLink(linkData);
+            // handlePostPaymentLink(linkData);
         }else{
             console.log('결제실패')
             alert("결제를 다시 시도해주세요");
