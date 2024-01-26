@@ -3,7 +3,27 @@ import styled from 'styled-components';
 
 
 function PaymentDone() {
+    useEffect(() => {
+        // 결제 결과 데이터 추출 (이 예시에서는 단순화를 위해 하드코딩)
+        const paymentResult = {
+            authResultCode: queryParams.get('AuthResultCode'),
+            authResultMsg: queryParams.get('AuthResultMsg'),
+            authToken: queryParams.get('AuthToken'),
+            payMethod: queryParams.get('PayMethod'),
+            mid: queryParams.get('MID'),
+            moid: queryParams.get('Moid'),
+            signature: queryParams.get('Signature'),
+            amt: queryParams.get('Amt'),
+            reqReserved: queryParams.get('ReqReserved'),
+            txtid: queryParams.get('TxTid'),
+            // 실제 데이터에 따라 필요한 값을 여기에 추가
+        };
 
+        // React Native 앱으로 결과 데이터를 전송
+        if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+            window.ReactNativeWebView.postMessage(JSON.stringify(paymentResult));
+        }
+    }, []);
 
     return (
         <Container>

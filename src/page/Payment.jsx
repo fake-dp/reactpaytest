@@ -16,7 +16,8 @@ const Payment = () => {
   const merchantID = "fittest01m";
   const ediDate = format(new Date(), 'yyyyMMddHHmmss');
   const amt = totalPrice;
-  const returnURL = 'http://localhost:8080/test';
+  // feturnurl을 어떻게 활용해야하는지 모르겠음
+  const returnURL = '/payment/complete';
   const goodsName = goodsNameParams;
   const moid = 'nice_api_test_3.0';
   const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString();
