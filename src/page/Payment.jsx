@@ -18,7 +18,9 @@ const Payment = () => {
   const ediDate = format(new Date(), 'yyyyMMddHHmmss');
   const amt = totalPrice;
   // feturnurl을 어떻게 활용해야하는지 모르겠음
-  const returnURL = 'https://www.noteggdev.co.kr/payResult_utf.jsp';
+  // const returnURL = 'https://www.noteggdev.co.kr/payResult_utf.jsp';
+  const returnURL = `http://27.96.135.229:8080/api/members/v2/tickets/${memberTicketId}/payment`;
+  
   const goodsName = goodsNameParams;
   const moid = 'nice_api_test_3.0';
   const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString();
@@ -51,12 +53,12 @@ const Payment = () => {
 
 
   function detectDeviceAndAssignMethods(isMobile) {
-    // if (isMobile) {
-    //   // 모바일 환경의 경우
-    //   formRef.current.action = "https://web.nicepay.co.kr/v3/v3Payment.jsp";
-    //   formRef.current.acceptCharset = "euc-kr";
-    //   formRef.current.submit();
-    // } 
+    if (isMobile) {
+      // 모바일 환경의 경우
+      formRef.current.action = "https://web.nicepay.co.kr/v3/v3Payment.jsp";
+      formRef.current.acceptCharset = "euc-kr";
+      formRef.current.submit();
+    } 
   }
 
   function getSignData(str) {
@@ -71,7 +73,7 @@ const Payment = () => {
       {
         memberTicketId
       }
-      {/* <form
+      <form
         name="payForm"
         method="post"
         action={returnURL}
@@ -85,7 +87,7 @@ const Payment = () => {
         <input type="hidden" name="SignData" value={signData}/>
         <input type="hidden" name="PayMethod" value="CARD"/>
         <input type="hidden" name="ReturnURL" value={returnURL}/>
-      </form> */}
+      </form>
     </div>
   );
 };
