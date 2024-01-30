@@ -10,8 +10,9 @@ const Payment = () => {
 
   const queryParams = new URLSearchParams(location.search);
   const goodsNameParams = queryParams.get('goodsName');
-
   const totalPrice = queryParams.get('totalPrice');
+  const memberTicketId = queryParams.get('memberTicketId');
+
   const merchantKey = "K/Yp1YrgMPr2FwvMo7Pzvr6F8zhEZpfvrYduZw1U5LXa7LzBUsnii1hnhcWaeIffKCjFjvrotzWAIyBc4+sMPw==";
   const merchantID = "fittest01m";
   const ediDate = format(new Date(), 'yyyyMMddHHmmss');
@@ -50,12 +51,12 @@ const Payment = () => {
 
 
   function detectDeviceAndAssignMethods(isMobile) {
-    if (isMobile) {
-      // 모바일 환경의 경우
-      formRef.current.action = "https://web.nicepay.co.kr/v3/v3Payment.jsp";
-      formRef.current.acceptCharset = "euc-kr";
-      formRef.current.submit();
-    } 
+    // if (isMobile) {
+    //   // 모바일 환경의 경우
+    //   formRef.current.action = "https://web.nicepay.co.kr/v3/v3Payment.jsp";
+    //   formRef.current.acceptCharset = "euc-kr";
+    //   formRef.current.submit();
+    // } 
   }
 
   function getSignData(str) {
@@ -66,7 +67,11 @@ const Payment = () => {
 
   return (
     <div>
-      <form
+      아이디값 들어왓니 ?
+      {
+        memberTicketId
+      }
+      {/* <form
         name="payForm"
         method="post"
         action={returnURL}
@@ -80,7 +85,7 @@ const Payment = () => {
         <input type="hidden" name="SignData" value={signData}/>
         <input type="hidden" name="PayMethod" value="CARD"/>
         <input type="hidden" name="ReturnURL" value={returnURL}/>
-      </form>
+      </form> */}
     </div>
   );
 };
