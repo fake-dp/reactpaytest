@@ -15,18 +15,19 @@ function TestData(props) {
     const merchantID = "fittest01m";
     const ediDate = format(new Date(), 'yyyyMMddHHmmss');
     const amt = totalPrice;
-    const returnURL = 'http://localhost:8080/test';
+    const returnURL = `http://27.96.135.229:8080/api/members/v2/tickets/d33ece5e-c2d5-4aeb-9fb9-0d35895fff2a/payment`;
+    // const returnURL = `http://localhost:8080/authReq`
     const goodsName = goodsNameParams;
     const moid = 'nice_api_test_3.0';
     const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString();
     const formRef = useRef(null);
 
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
     useEffect(() => {
         const handleEvent = (event) => {
             try {
-                // 여기서 event.data에는 React Native에서 보낸 데이터가 포함되어 있습니다.
                 const data = event.data;
-                // const data = JSON.parse(event.data.paymentInfoData);
                 setTest(data);
             } catch(error) {
                 console.log('Received data is not valid JSON: ', event.data);
@@ -34,17 +35,10 @@ function TestData(props) {
         };
 
         window.addEventListener('message', handleEvent);
-
-        // 컴포넌트가 언마운트될 때 이벤트 리스너를 제거합니다.
         return () => {
             window.removeEventListener('message', handleEvent);
         };
     }, []);
-
-
-
-  
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   
 
 
@@ -55,12 +49,18 @@ function TestData(props) {
   
   
     function detectDeviceAndAssignMethods(isMobile) {
-      if (isMobile) {
-        // 모바일 환경의 경우
-        formRef.current.action = "https://web.nicepay.co.kr/v3/v3Payment.jsp";
-        formRef.current.acceptCharset = "euc-kr";
-        formRef.current.submit();
-      } 
+            
+        if (isMobile) {
+            // 모바일 환경의 경우
+            formRef.current.action = "https://web.nicepay.co.kr/v3/v3Payment.jsp";
+            formRef.current.acceptCharset = "euc-kr";
+            // formRef.current.submit();
+        } else {
+            // PC 환경의 경우
+            window.nicepaySubmit = nicepaySubmit;
+            window.nicepayClose = nicepayClose;
+            // window.goPay(formRef.current);
+        }
     }
   
     function getSignData(str) {
@@ -68,9 +68,34 @@ function TestData(props) {
       return encrypted;
     }
   
+    function nicepayStart() {
+        // NicePay 결제 시작
+        if (window.goPay) {
+          window.goPay(document.payForm);
+        //   console.log('document.payForm',document.payForm)
+        } else {
+          console.error('나이스페이 에러.');
+        }
+      }
+
+      function nicepayClose(){
+        alert("결제를 다시 시도해주세요");
+    }
+
+
+    function nicepaySubmit(){
+        // console.log('결과값',document.payForm)
+        document.payForm.submit();
+}
+
 
     return (
         <>
+        <button
+        onClick={() => {
+            nicepayStart();
+        }}
+        >결제하기</button>
         <div>
         <form
         name="payForm"

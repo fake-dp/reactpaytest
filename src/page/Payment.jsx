@@ -20,7 +20,7 @@ const Payment = () => {
   // feturnurl을 어떻게 활용해야하는지 모르겠음
   // const returnURL = 'https://www.noteggdev.co.kr/payResult_utf.jsp';
   const returnURL = `http://27.96.135.229:8080/api/members/v2/tickets/${memberTicketId}/payment`;
-  
+    // const returnURL = 'https://www.noteggdev.co.kr/payResult_utf.jsp';
   const goodsName = goodsNameParams;
   const moid = 'nice_api_test_3.0';
   const signData = getSignData(ediDate + merchantID + amt + merchantKey).toString();
@@ -57,19 +57,41 @@ const Payment = () => {
       // 모바일 환경의 경우
       formRef.current.action = "https://web.nicepay.co.kr/v3/v3Payment.jsp";
       formRef.current.acceptCharset = "euc-kr";
-      formRef.current.submit();
-    } 
-  }
+      // formRef.current.submit();
+    }else{
+
+      window.nicepayClose = nicepayClose;
+      window.nicepaySubmit = nicepaySubmit;
+      window.goPay(formRef.current);
+    }
+    }
 
   function getSignData(str) {
     var encrypted = CryptoJS.SHA256(str);
     return encrypted;
   }
 
+  function nicepayStart() {
+    // NicePay 결제 시작
+    if (window.goPay) {
+      window.goPay(document.payForm);
+    //   console.log('document.payForm',document.payForm)
+    } else {
+      console.error('나이스페이 에러.');
+    }
+  }
+
+  function nicepaySubmit(){
+    // console.log('결과값',document.payForm)
+    document.payForm.submit();
+}
+
+  function nicepayClose(){
+    alert("결제를 다시 시도해주세요");
+}
 
   return (
     <div>
-      아이디값 들어왓니 ?
       {
         memberTicketId
       }
